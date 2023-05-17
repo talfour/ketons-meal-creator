@@ -1,0 +1,55 @@
+ <div class="question__answers">
+            <h3>Answers:</h3>
+            {% for answer in answers %}
+                {% if answer.best_answer %}
+                <div class="question__answers answer--best">
+                {% else %}
+                <div class="question__answers answer">
+                {% endif %}
+                    {% if question.author == request.user.profile %}
+                        {% if not is_answered %}
+                        <div class="answer__mark-as-best">
+                            <button class="answer__mark-as-best__btn">
+                                <a 
+                                href="#"
+                                data-id={{answer.id}}>
+                                    Mark as best answer
+                                </a>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                
+                    <div class="answer__created">
+                        {{answer.created}}
+                    </div>
+                    <div class="answer__author">
+                        {{answer.author}}
+                    </div>
+                    <div class="answer__text">
+                        {{answer.text}}
+                    </div>
+                </div>
+                <div class="question__answers answer__comment">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {{form2}}
+                        <input type="submit" name="form2" value="Comment">
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+        {% if question.is_open %}
+        <div class="question__answer-form">
+            <form action="" method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    </label>
+                    {% render_field field|add_class:"question__answer-form__input" %}
+                {% endfor %}
+                <input type="submit" name="form" value="Answer">
+            </form>
+        </div>
+        {% endif %}

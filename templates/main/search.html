@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load class_name %}
+{% block title %}Szukaj{% endblock title %}
+{% block content %}
+<div class="search-results">
+        <h1>Rezultaty wyszukiwania:</h1>
+        <div class="search-results__result">
+            {% for object in object_list %}
+            {% with object|class_name as klass%}
+                {% if klass == 'Recipe' %}
+                {% if object.published %}
+                <div class="search-results__result__link">
+                    <span class="bold">Przepis:</span> <a href="{% url 'recipes:recipe-detail-view' object.slug %}">{{object}}</a>
+                </div>
+                {% endif %}
+                {% elif klass == 'Profile'%}
+                <div class="search-results__result__link">
+                    {% if object.user.is_active %}
+                    <span class="bold">Profil:</span> <a href="{% url 'profiles:profile-details' object.slug %}">{{object}}</a>
+                    {% endif %}
+                </div>
+                {% elif klass == 'Food' %}
+                <div class="search-results__result__link">
+                    <span class="bold">Produkt:</span> <a href="{% url 'food:food-details' object.slug %}">{{object}}</a>
+                </div>
+                {% elif klass == 'Question' %}
+                <div class="search-results__result__link">
+                    <span class="bold">Pytanie:</span> <a href="{% url 'questions:question-detail-view' object.slug %}">{{object}}</a>
+                </div>
+                {% else %}
+                <div class="search-results__result__link">
+                    <span class="bold">Inne:</span> <a href='{{ object.get_absolute_url }}'>{{ object }} | {{ object|class_name }}</a>
+                </div>
+                {% endif %}
+            {% endwith %}
+            {% empty %}
+            <span class="bold">Nie znaleziono niczego.</span>
+            {% endfor %}
+        </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Zaktualizuj przepis{% endblock title %}
+{% block content %}
+{% if formset.non_form_errors %}
+<div class="message--active-danger">
+        <div class="message__mess">Przepis wymaga przynajmniej jednego składnika.</div>
+        <div class="message__close">&#10006;</div>
+</div>
+{% endif %}
+<div class="recipe-create">
+    <h1 class="recipe-create__header">Zaktualizuj przepis</h1>
+    <form class="recipe-create__form" action="" method="post" recipe-id="{{recipe.id}}" form id="form-container" data-unit-url={% url 'recipes:load_weights' %} data-recipe-url={% url 'recipes:get_recipe' %} enctype="multipart/form-data">
+        {% csrf_token %}
+        {{formset.management_form}}
+        {{form}}
+        {% for form in formset %}
+        <div class="recipe-create__ingredients">
+            {% for field in form %}
+                {% if field.name == "ingredient" %}
+                    {{field.label}}
+                    <input type="text" name="ingredient" list="list__ingredients" Placeholder="Szukaj składników" class="recipe-create__choosen_ingredient">
+                    {{field}}
+                {% elif field.name == "quantity" %}
+                    {{field.label}}
+                    {{field}}
+                {% elif field.name == "unit" %}
+                    {{field.label}}
+                    {{field}}
+                {% elif field.name == "DELETE" %}
+                    {{field.label}}
+                    {{field}}
+                {% else %}
+                    {{field}}
+  
+                {%endif%}
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button class="btn recipe-create__add-new" id="add-form" type="button">Dodaj kolejny składnik</button>
+        <input class="btn recipe-create__create-btn" type="submit" value="Zaktualizuj przepis">
+    </form>
+    <div class="recipe-create__preview">{{ form.media }}</div>
+</div>
+{% endblock content %}
+{% block scripts %}
+  <script src="{% static 'js/cookies.js' %}"></script>
+  <script src="{% static 'js/recipes_update.js' %}"></script>
+{% endblock%}

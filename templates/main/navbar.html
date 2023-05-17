@@ -1,0 +1,23 @@
+{% load static %}
+<nav class="menu">
+{% if request.user.is_authenticated %}
+    <button class="menu__back"><i class="fas fa-chevron-left"></i></button>    
+    <button class="menu__button"><i class="fas fa-bars"></i></button>
+        <a class="menu__logo" href="{% url 'home'%}">
+            <img src="{% static 'images/logo.svg'%}"></img>
+        </a>
+        <form class="menu__search-form" action="{% url 'search'%}" method="GET">
+            <input type="text" class="menu__search-form__data" name="q" placeholder="Wyszukaj" required>  
+            <button type="submit" class="fas fa-search menu__search-form__button"></button>
+        </form>
+        <button class="menu__search"><i class="fas fa-search"></i></button>
+        <div class="menu__profile"><a class="menu__profile__link" href="{% url 'profiles:my-profile-view' %}"><img class="menu__profile__img" src="{{request.user.profile.avatar.url}}" alt=""></a></li>  
+</nav>
+        {% else %}
+        <button class="menu__button"><i class="fas fa-bars"></i></button>
+        <a class="menu__logo" href="{% url 'home'%}">
+            <img src="{% static 'images/logo.svg'%}"></img>
+        </a>
+</nav>   
+{% endif %}
+

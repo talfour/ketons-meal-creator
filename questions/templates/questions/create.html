@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Zadaj pytanie
+{% endblock %}
+
+{% block content %}
+<div class="new-question">
+    <h1 class="new-question__header">Przed zadaniem nowego pytania sprawdź czy ktoś już o nie nie pytał.</h1>
+    <div class="new-question__form">
+    <form class="new-question__form__form" id="form" data-question-url={% url 'questions:check_if_exists' %} action="" method="post">
+        {% csrf_token %}
+        {{form}}
+        <input class="btn new-question__form__form__submit" type="submit" value="Zadaj pytanie">
+    </form>
+    <div class="new-question__simillar-questions">
+        <h1 class="new-question__simillar-questions__header">Możliwe podobne pytania:</h1>
+        <div class="new-question__simillar-questions__possible-questions"></div>
+    </div>
+</div>
+    <script src="{% static 'js/cookies.js' %}"></script>
+    <script>
+    const csrftoken = getCookie("csrftoken");
+    let title = document.querySelector('#id_title')
+    const url = document.querySelector("#form").getAttribute('data-question-url')
+    let possible_questions = document.querySelector('.new-question__simillar-questions__possible-questions')
+    let similar_questions = document.querySelector('.new-question__simillar-questions')
+    title.addEventListener('keyup', () =>{
+        fetch(url, {
+            credentials: 'include',
+                method: 'POST',
+                mode: 'same-origin',
+                headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify({
+                question: title.value
+            })
+            })
+            .then((response) => response.json())
+            .then((response) =>{
+                similar_questions.classList.add('new-question__simillar-questions--active')
+                possible_questions.innerHTML = ''
+                for(var key in response.question) {
+                    var value = response.question[key]
+                    possible_questions.innerHTML += `<div class="new-question__simillar-questions__possible-questions__question"><a href={% url 'questions:check_if_exists'%}>${key}</a></div>`.replace('{% url 'questions:check_if_exists'%}', `${value}`)
+                } 
+            });
+    });
+    </script>
+{% endblock %}

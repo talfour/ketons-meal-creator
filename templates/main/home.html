@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load recipe_tags %}
+{% block title %}
+Strona główna
+{% endblock title %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if request.user.profile.first_name %}
+            <h1 class="welcome">Witaj {{request.user.profile.first_name|title}}</h1>
+        {% else %}
+            <h1 class="welcome">Witaj {{request.user|title}}</h1>
+        {% endif %}
+        <input type="submit" value="Nowości" class="btn actions__header">
+        <div class="actions">
+            
+            {% for action in actions %}
+                {% include "actions/action/detail.html"%}
+            {% endfor %}
+        </div>
+        <div class="newest-recipes">
+            <h1 class="newest-recipes__header">Najnowsze przepisy</h1>
+                {% show_latest_recipes 6 %}
+        </div>
+        <div class="best-recipes">
+            <h1 class="best-recipes__header">Najlepiej oceniane przepisy</h1>
+            {% get_most_liked_recipe as most_like_recipes %}
+                    {% for recipe in most_like_recipes %}
+                        {% if recipe.published %}
+                            <div class="recipes__recipe">
+                                {% if recipe.images %}
+                                    <a class="recipes__recipe__link" href="{% url 'recipes:recipe-detail-view' recipe.slug %}">
+                                    <img class="recipes__recipe__image" src="{{recipe.images.url}}" alt="obraz przepisu" >
+                                    </a>
+                                {% endif %}
+                                <a class="recipes__recipe__title" href="{% url 'recipes:recipe-detail-view' recipe.slug %}">{{recipe.title}}</a>
+                                <p class="recipes__recipe__author">Utworzono: {{recipe.created}} przez: <span class="recipes__recipe__author--bold">{{recipe.author}}</span></p>  
+                                
+                                <i class="fas fa-thumbs-up recipes__recipe__likes-count"> {{recipe.liked.count}}</i>
+                                <i class="far fa-clock recipes__recipe__prepare-time"> Czas przygotowania: {{recipe.prepare_time|date:"G:i"}}</i>
+                                <p class="recipes__recipe__tags">
+                                    Tagi:
+                                    {% for tag in recipe.tags.all%}
+                                        <a class="recipes__recipe__tags__tag" href="{% url 'recipes:main-recipe-view' %}?tag={{tag}}">{{tag}}</a>
+                                    {% endfor %}
+                                </p>  
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+        </div>
+        <p class="total_recipes">Łączna liczba przepisów stworzonych do tej pory: {% total_recipes %}</p>
+        {% else %}
+        <div class="center-main">
+            <h1>Witaj na stronie KetONs</h1>
+            <h3>Ta strona jest przeznaczona dla ludzi którzy interesują się dietą ketogeniczną i szukają pomocy, oraz przepisów.</h3>
+            <p>Jeśli chcesz dołączyć i przeglądać przepisy zarejestruj się <a href="{% url 'register' %}"><span class="bold">tutaj</span></a>.</p>
+        </div>
+    {% endif %}
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" src={% static 'js/mainpage.js' %}></script>  
+{% endblock %}

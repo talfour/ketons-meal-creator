@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Pytania-Lista{% endblock %}
+{% block content %}
+<div class="questions-list">
+    <div class="questions-list__category">Kategoria: {{category}}</div>
+    <div class="questions-list__search">
+        <form class="questions-list__search__form" action="{% url 'search'%}" method="GET">
+            <input class="questions-list__search__form__input" type="text" name="question" placeholder="Search" required>  
+            <button type="submit" class="fas fa-search questions-list__search__form__button"></button>
+        </form>
+    </div>
+    {% for question in object_list %}
+        <div class="questions-list__question">
+            <div class="questions-list__question__author">
+                    {% if question.author.first_name and question.author.last_name %}
+                        <a class="questions-list__question__author__link" href="{% url 'profiles:profile-details' question.author.slug %}">{{question.author.first_name}} {{question.author.last_name}}</a>
+                    {% else %}
+                        <a class="questions-list__question__author__link" href="{% url 'profiles:profile-details' question.author.slug %}">{{question.author}}</a>
+                    {% endif %}
+                <div class="questions-list__question__author__avatar">
+                    <a class="questions-list__question__author__avatar__link" href="{% url 'profiles:profile-details' question.author.slug %}">
+                        <img class="questions-list__question__author__image" src="{{question.author.avatar.url}}" alt="profile-image">
+                    </a>
+                </div>
+            </div>
+            <div class="questions-list__question__title">
+                <a class="questions-list__question__link" href="{% url 'questions:question-detail-view' question.slug%}">{{question.title}}</a>
+            </div>
+            <div class="questions-list__question__created">
+                {{question.created|date:"d-m-Y H:m"}}
+            </div>
+            
+            <div class="questions-list__question__votes">
+                <i class="fas fa-vote-yea"><span class="questions-list__question__votes__number">{{question.count_score}}</span></i>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

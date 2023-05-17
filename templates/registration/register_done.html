@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Witaj{% endblock %}
+{% block content %}
+<div class="register-done">
+    <h1 class="register-done__header">Witaj, {{ new_user.first_name }}!</h1>
+    <p class="register-done__p">Twoje konto zostało utworzone. Możesz teraz się
+        <a class="register-done__p__link" href="{% url 'login' %}">zalogować</a>.
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile Details{% endblock %} 
+{% block content %}
+<div class="profile-overview">
+  
+  {% if profile.avatar %}
+  <div class="profile-overview__profile-image">
+    <img src="{{profile.avatar.url}}" alt="profile avatar" />
+  </div>
+  {% endif %}
+  <div class="profile-overview__profile-name">
+    {% if profile.first_name and profile.last_name %}
+      {{profile.first_name|title}} {{profile.last_name|title}}
+    {% else %}
+      {{profile}}
+    {% endif %}
+  </div>
+  <div class="profile-overview__profile-bio">{{profile.bio|title}}</div>
+  <div class="profile-overview__profile-followers">
+    <i class="fas fa-eye"></i>
+    <span class="profile-overview__profile-followers__number">
+      {% if total_followers == 0%}
+        0
+      {% elif total_followers == 1 %}
+      {{total_followers}} obserwujący
+      {% else %}
+      {{total_followers}} obserwujących
+      {%endif%}
+    </span>
+  </div>
+  {% if request.user.profile != profile%}
+  <div class="profile-overview__profile-follow">
+    <a id="follow"
+      href="#"
+      data-id="{{profile.user.id}}"
+      data-actions="{% if is_following %}un{% endif %}follow"
+      class="btn profile-overview__profile-follow__button">
+      {% if is_following %}Unfollow{% else %}Follow{% endif %}
+    </a>
+  </div>
+  {% endif %}
+</div>
+<div class="profile-recent-recipes">
+  {% if recipe%}
+    <h1 class="profile-recent-recipes__header">Przepisy</h1>
+  {% endif %}
+    {% for recipe in profile_recipes %}
+      {% if recipe.published %}
+        <div class="profile-recent-recipes__recipe">
+            {% if recipe.images %}
+                <a class="recipes__recipe__link" href="{% url 'recipes:recipe-detail-view' recipe.slug %}">
+                    <img class="recipes__recipe__image" src="{{recipe.images.url}}" alt="recipe image" >
+                </a>
+            {% endif %}
+            <div class="profile-recent-recipes__recipe__title">
+                {{recipe.title|title}}
+            </div>
+            <div class="profile-recent-recipes__recipe__created">
+                {{recipe.created}}
+            </div>
+            <div class="profile-recent-recipes__recipe__likes">
+                <i class="fas fa-thumbs-up"></i> {{recipe.liked.all.count}}
+            </div>
+            <div class="profile-recent-recipes__recipe__tags">
+                Tagi:
+                {% for tag in recipe.tags.all  %}
+                    <a class="profile-recent-recipes__recipe__tags__tag" href="{% url 'recipes:main-recipe-view' %}?tag={{tag}}">{{tag}}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock content %}
+{% block scripts %}
+    <script src="{% static 'js/cookies.js' %}"></script>
+    <script src="{% static 'js/profile_detail.js' %}"></script>
+{% endblock %}

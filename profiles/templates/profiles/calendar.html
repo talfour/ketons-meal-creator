@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Kalendarz{% endblock %} 
+{% block content %}
+<div class="calendar"></div>
+<div class="calendar-day-details"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        let calendarElement = document.querySelector('.calendar');
+        let calendar = new FullCalendar.Calendar(calendarElement, {
+            initialView: 'dayGridMonth',
+            locale: 'pl',
+            dateClick: function(info){
+                let url = "{% url 'profiles:calendar-detail' 20191229 %}"
+                let id = info.dateStr
+                let id_fixed = id.split('-').join('')
+                console.log(id_fixed);
+                document.location.href = url.replace('20191229', id_fixed)
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

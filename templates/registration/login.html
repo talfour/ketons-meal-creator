@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Zaloguj się{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+<h1>Jesteś zalogowany/a</h1>
+{% else %}
+{% if form.errors %}
+<div class="message message--active-danger">
+    <div class="message__mess">
+    Nazwa użytkownika lub hasło jest niepoprawne. Spróbuj ponownie.
+    </div>
+    <div class="message__close">&#10006;</div>
+</div>
+{% endif %}
+<div class="login">
+    <h1 class="login__header">Zaloguj się</h1>
+    <div class="login__form">
+        <form class="form" action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                
+                <div class="form__field">
+                    <label for="id_{{field.name}}" class="form__label">
+                        {% if field.name == 'username'%}
+                            <i class="fas fa-user"></i>
+                        {% else %}
+                            <i class="fas fa-lock"></i>
+                        {% endif %}
+                    </label>
+                    {{field}}
+                </div>
+                
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <input class="btn form__submit" type="submit" value="Zaloguj">
+        </form>
+        <p class="login__form__create_new"><a href="{% url 'register' %}">Zarejestruj się</a></p>
+        <p class="login__form__forgotten_pass"><a href="{% url 'password_reset' %}">Nie pamiętasz hasła?</a></p>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+{% block scripts %}
+  <script src="{% static 'js/close_message.js' %}"></script>
+{% endblock %}

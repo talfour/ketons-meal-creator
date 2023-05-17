@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Błąd 404
+{% endblock title %}
+
+{% block content %}
+    <div class="error-404">
+        <img src="{% static not_found.png %}">
+        <h1 class="error-404__header">Strona której szukasz nie została znaleziona</h1>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src={% static 'js/mainpage.js' %}></script>  
+{% endblock %}

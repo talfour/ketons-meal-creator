@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Usuń przepis{% endblock title %}
+{% block content %}
+    {% if messages %}
+    {% for message in messages %}
+        {% if warning in message.tags %}
+            <div class="message-warning">
+                {{message}}
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% if not messages %}
+    <div class="recipe__delete">
+        <form class="recipe__delete__form" action="" method="post">
+            {% csrf_token %}
+            <p class="recipe__delete__form__p">Czy na pewno chcesz usunąć przepis {{object}} ?</p>
+            <input class="btn recipe__delete__form__btn" type="submit" value="Usuń">
+        </form>
+    </div>
+    {% endif %}
+{% endblock content %}

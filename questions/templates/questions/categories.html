@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Pytania-Kategorie{% endblock %}
+{% block content %}
+    <div class="question-categories">
+    <div class="question-categories__create-new-question">
+            <a class="btn question-categories__create-new-question__link" href="{% url 'questions:question-create' %}">Zadaj pytanie</a>
+        </div>
+        <div class="question-categories__categories">
+            <h1 class="question-categories__categories__header">Kategorie:</h1>
+            {% for categorie in categories %}
+            <div class="question-categories__category">
+                <a class="question-categories__category__link" href="{% url 'questions:questions' categorie.name %}">{{categorie}}</a>
+            </div>
+        {% endfor %}
+        </div>
+        {% comment %} <div class="question-categories__create-new-category">
+            <a class="btn question-categories__create-new-btn" href="{% url 'questions:question-category-create' %}">Stwórz nową kategorie</a>
+        </div> {% endcomment %}
+        
+    </div>
+{% endblock %}

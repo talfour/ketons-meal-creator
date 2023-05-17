@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My profile{% endblock title %}
+{% block content %}
+    
+{% if confirm %}
+    <div class="message message--active">
+        <div class="message__mess">Twój profil został zaktualizowany</div>
+        <div class="message__close">&#10006;</div>
+    </div>
+{% endif %}
+    
+<div class="modal">
+    <div class="modal__body"></div>
+</div>
+<div class="my-profile">
+<header class="my-profile__header">Twój profil: {{profile.user|title}}</header>
+    <div class="my-profile__overview">
+        <div class="my-profile__overview__image-container">
+            <img class="my-profile__overview__image-container__image" src={{profile.avatar.url}}>
+            
+            
+        </div>
+        
+        <div class="my-profile__overview__details">
+            <p class="my-profile__overview__details__detail"><span class="bold">Imię:</span> {{profile.first_name}} {{profile.last_name}}</p>
+            <p class="my-profile__overview__details__detail"><span class="bold">Bio:</span> {{profile.bio}}</p>
+            <p class="my-profile__overview__details__detail"><span class="bold">Kalorie:</span> {{profile.total_kcal}}kcal</p>
+            <p class="my-profile__overview__details__detail"><span class="bold">Białko:</span> {{profile.proteins}}g</p>
+            <p class="my-profile__overview__details__detail"><span class="bold">Węglowodany:</span> {{profile.carbs}}g</p>
+            <p class="my-profile__overview__details__detail"><span class="bold">Tłuszcze:</span> {{profile.fats}}g</p>
+        </div>
+        <input type="submit" value="Zaktualizuj profil" class="btn my-profile__overview__update-button">
+        <div class="profile-update-form" id="form-update">
+            <form class="profile-update-form__form" action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.html_name == "is_on_adaptation" or field.html_name == "want_to_type_nutritiens"%}
+                    <div class="profile-update-form__form--flex">
+                        {{field.label}}
+                        {{field}}
+                    </div>
+                    {% elif field.html_name == "total_kcal" or field.html_name == "proteins" or field.html_name == "fats" or field.html_name == "carbs" %}
+                    <div class="profile-update-form__form--hidden">
+                        {{field.label}}
+                        {{field}}
+                    </div>
+                    {% else%}
+                    {{field.label}}
+                    {{field}}
+                    {% endif %}
+                {% endfor %}
+                <input type="submit" name="update_profile" value="Aktualizuj" class="btn profile-update-form__form__button">
+            </form>
+        </div>
+        <div class="my-profile__overview__followers">
+            {% with total_following.count as total_followers %}
+                <div class="my-profile__overview__followers__total">
+                    <span class="bold">Masz:</span> {{total_followers}}
+                    {% if total_followers == 1%} 
+                    obserwującego
+                    {% else %}
+                    obserwujących
+                    {% endif %}
+                </div>
+            {% endwith %}
+            {% if total_following %}
+                <input type="submit" value="Pokaż listę obserwujących" class="btn my-profile__overview__followers__button">
+            {% endif %}
+        </div>
+            <div class="my-profile__overview__following">
+                {% with total_followers.count as total_following %}
+                    {% if total_following == 0 %}
+                        <div class="my-profile__overview__following__total"><span class="bold">Nie obserwujesz nikogo.</span></div>
+                    {% elif total_following == 1 %}
+                        <div class="my-profile__overview__following__total"><span class="bold">Obserwujesz:</span> {{total_following}} osobę.</div>
+                    {% elif total_following < 10 %}
+                        <div class="my-profile__overview__following__total"><span class="bold">Obserwujesz:</span> {{total_following}} osoby.</div>
+                    {% else %}
+                        <div class="my-profile__overview__following__total"><span class="bold">Obserwujesz:</span> {{total_following}} osób.</div>
+                    {% endif %}
+                {% endwith %}
+                {% if total_followers %}
+                    <input type="submit" value="Ludzie których obserwujesz" class="btn my-profile__overview__following__button">
+                {% endif %}
+            </div>
+    </div>
+</div>
+<div class="following-list" id="following-list">
+    <h1 class="following-list__header">Obserwujesz:</h1>
+    {% for follower in total_followers %}
+        <a class="following-list__follower" href="{% url 'profiles:profile-details' follower.user_id.slug%}">
+            <img class="following-list__follower__image" src="{{follower.user_id.avatar.url}}" alt="zdjęcie profilowe">
+            <p class="following-list__follower__name">{{follower.user_id}}</p>
+        </a>
+    {% endfor %}
+</div>
+
+<div class="followers-list" id="followers-list">
+    <h1 class="followers-list__header">Obserwują cię:</h1>
+    {% for following in total_following %}
+        <a class="followers-list__followed" href="{% url 'profiles:profile-details' following.following_user_id.slug%}">
+            <img class="followers-list__followed__image" src="{{following.following_user_id.avatar.url}}" alt="zdjęcie profilowe">
+            <p class="followers-list__followed__name">{{following.following_user_id}}</p>
+        </a>
+        
+    {% endfor %}
+</div>
+
+
+
+{% endblock content %}
+{% block scripts %}
+    <script type="text/javascript" src={% static 'js/myprofile.js' %}></script>
+{% endblock scripts %}

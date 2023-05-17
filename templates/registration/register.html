@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Rejestracja{% endblock %}
+{% block content %}
+
+{% if messages %}
+        {% for message in messages%}
+            {% if message.success%}
+                <div class="message--success">
+                    {{message}}
+                </div>
+            {% else %}
+                <div class="message--active-danger">
+                    <div class="message__mess">
+                        {{message}}
+                    </div>
+                    <div class="message__close">&#10006;</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+{% endif %}
+{% if user.is_authenticated%}
+    <h1 class="register__authenticated">Jesteś zalogowany/a czemu chcesz się zarejestrować ?</h1>
+    {% else %}
+<div class="register">
+    <h1 class="register__header">Rejestracja</h1>
+    <div class="register__form">
+    <form class="form" action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        {% for field in user_form %}
+                <div class="form__field">
+                    <label for="id_{{field.name}}" class="form__label">
+                        {% if field.name == 'username'%}
+                            <i class="fas fa-user"></i>
+                        {% elif field.name == 'email'%}
+                            <i class="fas fa-envelope"></i>
+                        {% elif field.name == 'password1' %}
+                            <i class="fas fa-lock"></i>
+                        {% elif field.name == 'password2' %}
+                            <i class="fas fa-lock"></i>
+                        {% endif %}
+                    </label>
+                    {{field}}
+                </div>
+                {% endfor %}
+        <input class="btn form__submit" type="submit" value="Zarejestruj się">
+    </form>
+    <div class="form__p">Masz już konto? <a class="register__form__p__link" href="{% url 'login' %}">Zaloguj się tutaj</a></div>
+    <div>
+    {% endif %}
+</div>
+{% endblock %}

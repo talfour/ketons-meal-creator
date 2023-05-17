@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Utwórz nowy przepis{% endblock title %}
+{% block content %}
+{% if messages %}
+<div class="message--active-danger">
+    {% for message in messages%}
+        <div class="message__mess">{{message}}</div>
+        <div class="message__close">&#10006;</div>
+    {% endfor %}
+    </div>
+{% endif %}
+<div class="recipe-create">
+
+    <h1 class="recipe-create__header">Utwórz nowy przepis</h1>
+    <form class="recipe-create__form" id="form-container" data-unit-url={% url 'recipes:load_weights' %} method='POST' enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ ingredient_form.management_form }}
+        
+        {% for field in form%}
+            <div class="recipe-create__form__field">
+                    <label for="id_{{field.name}}" class="recipe-create__form__label">
+                        {{field.label}}
+                    </label>
+                    {% if field.errors %}
+                    <div class="recipe-create__form__field__error">
+                        <strong>{{ field.errors|escape }}</strong>
+                    </div>
+                    {% endif %}
+                    
+                    {{field}}
+                    
+                    <div class="recipe-create__form__field__help-text">
+                    {{field.help_text}}
+                    </div>
+                    
+                    
+            </div>
+            
+        {% endfor %}
+
+        
+        {% for form in ingredient_form %}
+        <div class="recipe-create__ingredients">
+            {% for field in form %}
+                {% if field.name == "ingredient" %}
+                    {{field.label}}
+                    <input type="text" autoComplete="off" name="ingredient" list="list__ingredients" Placeholder="Szukaj składników" class="recipe-create__choosen_ingredient">
+                    {{field}}
+                {% elif field.name == "quantity" %}
+                    {{field.label}}
+                    {{field}}
+                {% elif field.name == "unit" %}
+                    {{field.label}}
+                    {{field}}
+                {% else %}
+                    {{field}}
+                {%endif%}
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button class="btn recipe-create__add-new" id="add-form" type="button">Dodaj kolejny składnik</button>
+        <input class="btn recipe-create__create-btn" type="submit" value="Utwórz przepis">
+    </form>
+    <div class="recipe-create__preview">{{ form.media }}</div>
+</div>
+{% endblock content %}
+{% block scripts %}
+    <script src="{% static 'js/cookies.js' %}"></script>
+    <script src="{% static 'js/recipes_create.js' %}"></script>
+{% endblock %}

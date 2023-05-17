@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load calories_count %}
+{% block title %}Kalendarz-szczegóły dnia{% endblock %} 
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+{% endblock%}
+{% block content %}
+<div class="calendar-detail"><h1 class="calendar-detail__header">{{date}}</h1>
+<a class="btn calendar-detail__add-new-recipe" href="{% url 'profiles:calendar-new-meal' %}">Dodaj nowy przepis</a>
+{%if ingredients%}
+{% for meal in ingredients %}
+<div class="calendar-detail__meal">
+    <a class="calendar-detail__meal__link" href="{% url 'recipes:recipe-detail-view' meal.slug %}">
+      <div class="calendar-detail__meal__meal-name">{{meal.meal}}</div>
+      <div class="calendar-detail__meal__meal-image"><img class="calendar-detail__meal__meal-image__image" src={{meal.image}}></div>
+    </a>
+    <div class="calendar-detail__meal__meal-choosen-name"><span class="bold">Nazwa posiłku: </span>{{meal.user_choosen_name}} <span class="bold">Czas </span>{{meal.time|date:'H:i'}}</div>
+    <div class="calendar-detail__meal__portions"><span class="bold">Ilość wybranych porcji: </span>{{meal.portions}}</div>
+    <div class="calendar-detail__meal__meal-total">
+      <div class="calendar-detail__meal__meal-total__kcal">
+        <span class="bold">Kalorie</span> {{meal.total_nutrition.Kalorie|floatformat}} kcal
+      </div>
+      <div class="calendar-detail__meal__meal-total__proteins">
+        <span class="bold">Białko</span> {{meal.total_nutrition.Białko|floatformat}} g
+      </div>
+      <div class="calendar-detail__meal__meal-total__fat">
+        <span class="bold">Tłuszcze</span> {{meal.total_nutrition.Tłuszcze|floatformat}} g
+      </div>
+      <div class="calendar-detail__meal__meal-total__carbs">
+        <span class="bold">Węglowodany</span> {{meal.total_nutrition.Węglowodany|floatformat}} g
+      </div>
+      <div class="calendar-detail__meal__meal-total__carbs_netto">
+        <span class="bold">Węglowodany netto</span> {% dictKeyLookup meal.total_nutrition "Węglowodany netto"%} g
+      </div>
+      <div class="calendar-detail__meal__meal-total__fibre">
+        <span class="bold">Błonnik</span> {% if meal.total_nutrition.Błonnik %}{{meal.total_nutrition.Błonnik|floatformat }}{%else%}0{% endif %} g
+      </div>
+      
+      <div class="calendar-detail__meal__meal-ingredients__ingredient">
+            {% for k, v in meal.total_nutrition.items%}
+              <div class="calendar-detail__meal__meal-ingredients__ingredient__info">
+              {% if k not in 'Kalorie' and k not in 'Białko' and k not in 'Tłuszcze' and k not in 'Węglowodany' and k not in 'Węglowodany netto' and k not in 'Błonnik'%}
+                <span class="bold">{{k}}</span> {{v|floatformat}}
+              {% endif %}
+              </div>
+            {% endfor %}
+        </div>     
+      <input type="submit" value="Pokaż wszystkie składniki żywieniowe" class="btn calendar-detail__meal__show-all">
+    </div>
+    
+         
+    
+    <a class="btn calendar-detail__meal__delete" href="{% url 'profiles:calendar-delete-meal' meal.id %}">Usuń przepis z dnia</a>
+</div>
+{% endfor %}
+<div class="calendar-detail__meal__total">
+  <h1 class="calendar-detail__meal__total__header">Łącznie w ciągu dnia</h1>
+    <div class="calendar-detail__meal__total__kcal">
+      <span class="bold">Kalorie</span> {{total_nutrition.Kalorie|floatformat}} kcal
+    </div>
+    <div class="calendar-detail__meal__total__proteins">
+      <span class="bold">Białko</span> {{total_nutrition.Białko|floatformat}} g
+    </div>
+    <div class="calendar-detail__meal__total__fat">
+      <span class="bold">Tłuszcze</span> {{total_nutrition.Tłuszcze|floatformat}} g
+    </div>
+    <div class="calendar-detail__meal__total__carbs">
+      <span class="bold">Węglowodany</span> {{total_nutrition.Węglowodany|floatformat}} g
+    </div>
+    <div class="calendar-detail__meal__total__carbs_netto">
+      <span class="bold">Węglowodany netto</span> {% dictKeyLookup total_nutrition "Węglowodany netto"%} g
+    </div>
+    <div class="calendar-detail__meal__total__fibre">
+      <span class="bold">Błonnik</span> {{total_nutrition.Błonnik|floatformat}} g
+    </div>
+    <div class="calendar-detail__meal__total__ingredients">
+    {% for k, v in total_nutrition.items%}
+      <div class="calendar-detail__meal__total__ingredients__info">
+      {% if k not in 'Kalorie' and k not in 'Białko' and k not in 'Tłuszcze' and k not in 'Węglowodany' and k not in 'Węglowodany netto' and k not in 'Błonnik'%}
+        <span class="bold">{{k}}</span> {{v|floatformat}}
+      {% endif %}
+      </div>
+    {% endfor %}
+    </div>
+    <input type="submit" value="Pokaż wszystkie składniki żywieniowe" class="btn calendar-detail__meal__show-all">
+</div>
+{% endif %}
+<div class="chart">
+    <input id="proteins" type="hidden" value={{total_nutrition.Białko|floatformat}}>
+    <input id="carbs" type="hidden" value={{total_nutrition.Węglowodany|floatformat}}>
+    <input id="fats" type="hidden" value={{total_nutrition.Tłuszcze|floatformat}}>
+    <canvas id="bar-chart-grouped" width="200" height="200"></canvas>
+<script>
+
+    new Chart(document.getElementById("bar-chart-grouped"), {
+        type: 'bar',
+        data: {
+          labels: ["Białko", "Tłuszcze", "Węglowodany"],
+          datasets: [
+            {
+              label: "Spożyto dnia: {{date}}",
+              backgroundColor: "#a3be8c",
+              data: [{{total_nutrition.Białko|stringformat:".2f"}},{{total_nutrition.Tłuszcze|stringformat:".2f"}},{{total_nutrition.Węglowodany|stringformat:".2f"}}]
+            }, {
+              label: "Maksymalne wartości",
+              backgroundColor: "#bf616a",
+              data: [{{request.user.profile.proteins}},{{request.user.profile.fats}},{{request.user.profile.carbs}}]
+            }
+          ]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'Twoje dzienne zapotrzebowanie'
+          }
+        }
+    });
+</script>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/calendar_detail.js' %}"></script>
+{% endblock %}

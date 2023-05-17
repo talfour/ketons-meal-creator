@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %} Produkt {{food.name}} {% endblock %} 
+{% block content %}
+    <div class="food">
+        <div class="food__name">{{food}}</div>
+        <div class="food__category">Kategoria: {{food.category|capfirst}}</div>
+        <div class="food__nutri_info">
+            <div class="food__header">Wartości odżywcze w 100g</div>
+            {% for k, v in nutri_values.items %}
+                <div class="food__nutri_info__details"><span class="bold">{{k|title}}</span><p class="food__nutri_info__details__value">{{v}}</p></div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

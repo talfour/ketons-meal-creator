@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Kalendarz-dodaj nowy posiłek {% endblock %} 
+{% block content %}
+<div class="calendarz">
+<div class="calendar-new-meal">
+  
+    <form class="calendar-new-meal__form" id="meal_form"action="" method="post" data-recipe-url={% url 'recipes:check_recipe' %} data-unit-url={% url 'recipes:get_recipe' %}>
+        {% csrf_token %}
+        {{form}}
+        <input class="calendar-new-meal__form__btn btn" type="submit" value="Dodaj">
+    </form>
+    <input id="check_recipe" type="button" value="Podejrzyj przepis" class="btn calendar-new-meal__form__btn-check">
+  
+</div>
+<div class="calendar-new-meal__recipe-info"></div>  
+</div>
+{% endblock %}
+{% block scripts%}
+  <script src="{% static 'js/cookies.js' %}"></script>
+  <script src="{% static 'js/calendar-detail-new-meal.js' %}"></script>
+{% endblock %}

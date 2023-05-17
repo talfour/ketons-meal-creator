@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Stwórz nowy produkt{% endblock %}
+
+{% block content %}
+<div class="food-new">
+    <h1 class="food-new__header">Dodaj nowy produkt</h1>
+    <form class="food-new__form" action="" method="post">
+        {%csrf_token%}
+        {% for field in form %}
+                <div class="food-new__form__field">
+                    <label for="id_{{field.name}}" class="food-new__form__label">
+                        {{field.label}}
+                    </label>
+                    {% if field.errors %}
+                    <div class="food-new__form__field__error">
+                        <strong>{{ field.errors|escape }}</strong>
+                    </div>
+                    {% endif %}
+                    {{field}}
+                </div>
+                {% endfor %}
+
+        <input class="btn food-new__form__btn" type="submit" value="Dodaj nowy produkt">
+        
+    </form>
+</div>
+{% endblock %}

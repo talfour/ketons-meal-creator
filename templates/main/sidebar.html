@@ -1,0 +1,22 @@
+{% if request.user.is_authenticated %}
+<section class="sidebar">
+        <ul class="sidebar__list">
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'profiles:calendar' %}"><i class="far fa-calendar-alt"></i>Kalendarz</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'food:food-list' %}"><i class="fab fa-product-hunt"></i>Produkty</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'recipes:main-recipe-view' %}"><i class="fas fa-utensils"></i>Przepisy</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'recipes:user-recipe-view' %}"><i class="fas fa-book-open"></i>Książka przepisów</a></li>
+            <li class="sidebar__item"><a class="sidebar__link menu__link--smaller" href="{% url 'profiles:following' %}"><i class="far fa-heart"></i>Przepisy obserwowanych</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'profiles:profile-list' %}"><i class="fas fa-users"></i>Profile</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'questions:question-categories' %}"><i class="fas fa-question"></i>Pytania i odpowiedzi</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'password_change' %}"><i class="fas fa-lock"></i>Zmień hasło</a>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Wyloguj się</a></li>
+        </ul>
+</section>
+{% else %}
+<section class="sidebar">
+        <ul class="sidebar__list">
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'login' %}"><i class="fas fa-sign-out-alt"></i>Zaloguj się</a></li>
+            <li class="sidebar__item"><a class="sidebar__link" href="{% url 'register' %}"><i class="fas fa-user-plus"></i>Zarejestruj się</a></li>
+        </ul>
+</section>
+{% endif %}

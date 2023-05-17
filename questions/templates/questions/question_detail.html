@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}{{question.title}}{% endblock %}
+{% block content %}
+<div class="message">
+    <div class="message--success"></div>
+    <div class="message__close">&#10006;</div>
+</div>
+<div class="question__vote">
+    <input class="question__vote-value" value="{{voted}}" type="hidden">
+    {% if voted == 'like' %}
+        <a class="btn btn-like question-down" id="like-recipe" href="#" data-value="unlike" data-id="{{question.id}}"><i class="fas fa-thumbs-down">Głos w dół</i></a>
+    {% else %}
+        <a class="btn btn-like question-up" id="like-recipe" href="#" data-value="like" data-id="{{question.id}}"><i class="fas fa-thumbs-up">Głos w górę</i></a>
+    {% endif %}
+
+</div>
+{% if not question.is_open %}
+<div class="question__closed">
+    <h1 class="question__closed__header">Pytanie zostało zamknięte</h1>
+</div>
+{% endif %}
+<div class="question">
+        <div class="question__score">Ocena pytania: <span class="bold question__score">{{question.count_score}}</span></div>
+        
+    <div class="question__question-author">
+        <div class="question__question-author__name">
+            {% if question.author.first_name and question.author.last_name %}
+                <a class="question__question-author__name__name" href="{% url 'profiles:profile-details' question.author.slug %}">{{question.author.first_name}} {{question.author.last_name}}</a>
+            {% else %}
+                <a class="question__question-author__name__name" href="{% url 'profiles:profile-details' question.author.slug %}">{{question.author}}</a>
+            {% endif %}
+        </div>
+        <div class="question__question-author__avatar">
+            <a class="question__question-author__avatar__link" href="{% url 'profiles:profile-details' question.author.slug %}">
+                <img class="question__question-author__avatar__image" src="{{question.author.avatar.url}}" alt="profile-image">
+            </a>
+        </div>
+    </div>
+    <div class="question__question-created">
+        {{question.created|date:"d-m-Y H:m"}}
+    </div>
+    <div class="question__question-title">
+        {{question.title}}
+    </div>
+    <div class="question__question-description">
+        {{question.content}}
+    </div>
+    
+</div>
+<div class="question__answer">
+        <h3 class="question__answer__header">Odpowiedzi:</h3>
+        {% for answer in answers %}
+            <div class="question__answers__answer">
+            {% if answer.best_answer %}
+            
+            <blockquote class="question__answers__details question__answers__details--best">
+            <h5 class="question__answers__details question__answers__details--best__header">Rozwiązanie pytania</h5>
+            {% else %}
+            <blockquote class="question__answers__details">
+            {% endif %}
+                {% if question.author == request.user.profile %}
+                        {% if not is_answered %}
+                            <div class="question__answers__details__mark-as-best">
+                                <button class="btn question__answers__details__mark-as-best-btn">
+                                    <a 
+                                    href="#"
+                                    data-id={{answer.id}}>
+                                        Najlepsza odpowiedź
+                                    </a>
+                                </button>
+                            </div>
+                        {% endif %}
+                {% endif %}
+                <p class="question__answers__details__content">{{answer.text}}</p>
+                <small class="question__answers__details__info">przez <span class="bold">{{answer.author}}</span> | {{answer.created|timesince}} temu. | {%if question.is_open%}<a class="question__answers__details__reply-btn" href="#">Odpowiedz</a>{%endif%}</small>
+                
+                
+                <div class="question__answers__answer__reply">
+                    {% for reply in answer.replies.all %}
+                        <blockquote class="question__answers__answer__reply__reply">
+                            <p class="question__answers__answer__reply__reply__content">{{reply.text}}</p>
+                            <small class="question__answers__answer__reply__reply__info">przez <span class="bold">{{reply.author}}</span> | {{reply.created|timesince}} temu.</small>
+                            
+                        </blockquote>
+                    {% endfor %}
+                    <div class="question__answers__answer__reply__form">
+                    {% if question.is_open %}
+                    <form class="question__answers__answer__reply__form__form" action="" method="POST">
+                        {%csrf_token%}
+                        {% for field in form %}
+                        <label for="{{field.id_for_label}}">{{field.label}}</label>
+                        {% render_field field|add_class:"question__answers__answer__reply__form__form__input"%}
+                        {% endfor %}
+                        <input type="hidden" name="answer_id" value={{answer.id}}>
+                        <input class="btn question__answers__answer__reply__form__btn" type="submit" name="form", value="Odpowiedz na komentarz">
+                    </form>
+                    {% endif %}
+                </div>
+            </blockquote>       
+        {% endfor %}
+        {% if question.is_open %}
+        <input type="submit" class="btn question__answer-form__button" value="Odpowiedz na pytanie">
+        <div class="question__answer-form">
+            <h4 class="question__answer-form__p">Dodaj odpowiedź: </h4>
+                <form class="question__answer-form__form" action="" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <label for="{{field.id_for_label}}">{{field.label}}</label>
+                    {% render_field field|add_class:"question__answer-form__form__input"%}
+                    {% endfor %}
+                    <input class="btn question__answer-form__form__btn" type="submit", name="form" value="Odpowiedz">
+                </form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'js/cookies.js' %}"></script>
+    <script src="{% static 'js/answers.js' %}"></script>
+{% endblock%}

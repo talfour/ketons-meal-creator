@@ -1,0 +1,41 @@
+{% with user=action.user profile=action.user.profile %}
+<div class="actions__action">
+<div class="actions__action__action-info">
+    <p class="actions__action__action-info__detail">
+        <span>{{action.created|timesince}} temu</span>
+        <a class="bold actions__action__action-info__detail__link" href="{{user.profile.get_absolute_url}}">
+            {{user.profile.first_name}} {{user.profile.last_name}}
+        </a>
+        {{action.verb}}
+        {% if action.target %}
+            {% with target=action.target %}
+                <a class="bold actions__action__action-info__detail__link" href="{{target.get_absolute_url}}">{{target}}</a>
+            {% endwith %}
+        {% endif %}
+    </p>
+</div>
+    <div class="actions__action__user">
+        {% if profile.avatar %}
+            <a href="{{user.profile.get_absolute_url}}">
+                <img class="actions__action__user__image" src="{{user.profile.avatar.url}}" alt="">
+            </a>
+        {% endif %}
+    </div>
+
+    {% if action.target %}
+    {% with target=action.target %}
+    {% if target.images %}
+    <div class="actions__action__target">
+        <a href="{{target.get_absolute_url}}">
+            <img class="actions__action__target__image" src="{{target.images.url}}" alt="">
+        </a>
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    
+    {% endif %}
+
+
+</div>
+{% endwith %}

@@ -1,0 +1,22 @@
+{% for recipe in latest_recipes %}
+{% if recipe.published %}
+<div class="recipes__recipe">
+            {% if recipe.images %}
+                <a class="recipes__recipe__link" href="{% url 'recipes:recipe-detail-view' recipe.slug %}">
+                <img class="recipes__recipe__image" src="{{recipe.images.url}}" alt="obraz przepisu" >
+                </a>
+            {% endif %}
+            <a class="recipes__recipe__title" href="{% url 'recipes:recipe-detail-view' recipe.slug %}">{{recipe.title}}</a>
+            <p class="recipes__recipe__author">Utworzono: {{recipe.created}} przez: <span class="recipes__recipe__author--bold">{{recipe.author}}</span></p>  
+            
+            <i class="fas fa-thumbs-up recipes__recipe__likes-count"> {{recipe.liked.count}}</i>
+            <i class="far fa-clock recipes__recipe__prepare-time"> Czas przygotowania: {{recipe.prepare_time|date:"G:i"}}</i>
+            <p class="recipes__recipe__tags">
+                Tagi:
+                {% for tag in recipe.tags.all%}
+                    <a class="recipes__recipe__tags__tag" href="{% url 'recipes:main-recipe-view' %}?tag={{tag}}">{{tag}}</a>
+                {% endfor %}
+            </p>  
+        </div>
+{% endif %}
+{% endfor %}

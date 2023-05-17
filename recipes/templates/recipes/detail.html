@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load recipe_tags %}
+{% block title %}{{recipe.title}}{% endblock title %}
+{% block content %}
+<div class="message">
+    <div class="message__mess"></div>
+    <div class="message__close">&#10006;</div>
+</div>
+    <div class="meal-wrapper">
+    {% if current_user.profile != recipe.author %}
+        <div class="buttons">
+        <a class="btn btn-like" id="like-recipe" href="#" data-id="{{recipe.id}}">{% if request.user.profile not in recipe.liked.all %}<i class="fas fa-thumbs-up">Like</i>{% else %}<i class="fas fa-thumbs-down">Unlike</i>{% endif %}</a>
+        <a class="btn btn-add-to-book" href="#" data-id="{{recipe.id}}">{% if request.user.profile not in recipe.saved.all %}<i class="fas fa-book-medical">Dodaj do książki</i>{% else %}<i class="fas fa-book-dead">Usuń z książki</i>{% endif %}</a>
+        </div>
+    {% endif %}
+
+    {% if current_user == recipe.author.user %}
+        <div class="buttons">
+        <a class="btn recipe-btn" id="update-btn" href="{% url 'recipes:recipe-update' recipe.id%}">Aktualizuj przepis</a>
+        <a class="btn recipe-btn" id="delete-btn" href="{% url 'recipes:recipe-delete' recipe.id%}">Usuń przepis</a>
+        </div>
+    {% endif %}
+
+    {% if recipe.published or recipe.author.user == current_user %}
+        <div class="meal-details">
+            <h1 class="meal-details__title">{{recipe.title|title}}</h1>
+            <p class="meal-details__info">Autor: <a class="meal-details__author" href="{% url 'profiles:profile-details' recipe.author.slug%}">{{recipe.author}}</a></p>
+            <p class="meal-details__time">{{recipe.created}}</p>
+            <p class="meal-details__portions">Ilość porcji: {{recipe.portions}}</p>
+            <i class="meal-details__prepare-time far fa-clock"> Czas przygotowania: {{recipe.prepare_time|date:"G:i"}}</i>
+            
+            <div class="meal-details__likes-count"><i id="total_likes" class="fas fa-thumbs-up"> {{recipe.liked.count}}</i></div>
+            
+            {% if recipe.images %}
+                <img class="meal-details__image" src="{{recipe.images.url}}" alt="recipe image">
+            {% endif %}
+            
+            <p class="meal-details__tags">Tagi:
+            {% for tag in recipe.tags.all %}
+                <a class="meal-details__tags__tag" href="{% url 'recipes:main-recipe-view' %}?tag={{tag}}">{{tag}}</a>
+            {% endfor%}
+            </p>
+            <div class="meal-details__ingredients-list">
+                <h1 class="meal-details__ingredients-list__header">Składniki</h1>
+                {% for ingredient in recipe.recipeingredients_set.all%}
+                    <div class="meal-details__ingredients-list__ingredient">{{ingredient.ingredient}} Ilość: {{ingredient.quantity}} {{ingredient.unit.measure_description}}
+                        {% if ingredient.unit.measure_description != 'gram'%}
+                            około {% multiply ingredient.quantity ingredient.unit.gram %}g.
+                        {% endif %}
+                     </div>
+                {% endfor %}
+            </div>
+            <div class="meal-details__content">
+            <h1 class="meal-details__content__header">Sposób przygotowania:</h1>
+            {{recipe.content|editorjs}}
+            </div>
+            <div class="meal-details__nutritions">
+                <h1 class="meal-details__nutritions__header">Wartości odżywcze:</h1>
+                <div class="meal-details__nutritions__nutrition">
+                    <div class="meal-details__nutritions__nutrition__portions">
+                    <h3>W całości</h3>
+                    {% for key, value in total%}
+                        {% if key in 'Kalorie' or key in 'Białko' or key in 'Węglowodany' or key in 'Cukier' or key in 'Węglowodany netto' or key in 'Błonnik' or key in 'Tłuszcze'%}
+                            <div class="meal-details__nutritions__nutrition__main">{{key}} {{value|floatformat}}</div>
+                        {% else %}
+                            <div class="meal-details__nutritions__nutrition__additional">{{key}} {{value|floatformat}}</div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                        <div class="meal-details__nutritions__nutrition__per-portion">
+                        <h3>W jednej porcji</h3>
+                    {% for key, value in per_portion%}
+                        {% if key in 'Kalorie' or key in 'Białko' or key in 'Węglowodany' or key in 'Cukier' or key in 'Węglowodany netto' or key in 'Błonnik' or key in 'Tłuszcze'%}
+                            <div class="meal-details__nutritions__nutrition__main">{{key}} {{value|floatformat}}</div>
+                        {% else %}
+                            <div class="meal-details__nutritions__nutrition__additional">{{key}} {{value|floatformat}}</div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                <div class="meal-details__nutritions__nutrition__button"><input type="submit" class="btn meal-details__nutritions__nutrition__show-additional" value="Więcej"></div>
+                </div>
+            </div>
+    </div>
+        <div class="comments">
+            <h2>Komentarze:</h2>
+                {% for comment in comments %}
+                    <blockquote class="comment">
+                        <p class="comment__content">{{comment.content}}</p>
+                        <small class="comment__info">przez <span class="comment__author">{{comment.user}}</span> | {{comment.timestamp | timesince}} temu. {% if comment.children.count > 0%}|{{comment.children.count}}  komentarz{{comment.children.count|pluralize:"e"}}{% elif comment.childer.count < 4%} | komentarzy{{comment.children.count}}{% endif %} | 
+                            <input type="button" value="Odpowiedz" class="comment__reply-btn"></input></small>
+                            <div class="comment__reply">
+                                    {%for child_comment in comment.children %}
+                                        <blockquote class="comment__replied">
+                                            <p class="comment__content__reply">{{ child_comment.content }}</p>
+                                            <small class="comment__content__info--reply">przez <span class="comment__author">{{comment.user}}</span> | {{child_comment.timestamp| timesince}} temu.</small>
+                                        </blockquote>
+                                    {% endfor %}
+                                    <form class="comment__reply-form" action="" method="POST">
+                                        {% csrf_token %}
+                                        {{form}}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <input class="btn comment__reply-form__input" type="submit" value="Odpowiedz na komentarz">
+                                    </form>
+                            </div>
+                    </blockquote>                
+                {% endfor %}
+            <input type="button" value="Dodaj nowy komentarz" class="btn comments__add-new-comment">
+            <form action="" class="comments__new-comment" method="POST">
+                {% csrf_token %}
+                {% for field in form%}
+                {{field}}
+                {% endfor %}
+                <input class="btn comments__new-comment__input" type="submit" value="Dodaj komentarz">
+            </form>
+        </div>
+
+    {% if similar_recipes %}
+            <div class="similar-posts">
+                <h2 class="similar-posts__header">Podobne przepisy:</h2>
+                {% for recipe in similar_recipes %}
+                    <div class="similar-posts__recipe">
+                        <a href="{{recipe.get_absolute_url}}"><img class="similar-posts__recipe__image" src="{{recipe.images.url}}" alt="recipe image"></a>
+                        <p class="similar-posts__recipe-title">{{recipe.title|truncatechars:14}}</p>
+                    </div>
+                {% endfor %}
+            </div>
+    {% endif %}
+    {% else %}
+    <h1>This recipe is not published, you are not able to see it.</h1>
+    {% endif %}
+</div>
+{% endblock content %}
+{% block scripts %}
+    <script src="{% static 'js/recipe_detail.js' %}"></script>
+    <script src="{% static 'js/cookies.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% autoescape off %}
+Witaj {{user.username}}, 
+Aby potwierdzić rejestrację na stronie KetONS.pl proszę naciśnij poniższy link:
+
+https://{{ domain }}{% url 'activate' uidb64=uid token=token %} 
+{% endautoescape %}
